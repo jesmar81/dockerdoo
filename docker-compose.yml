@@ -1,16 +1,10 @@
-version: "3.7"
+version: "3.8"
 
 networks:
   default:
-    external:
-      name: cloudbuild
+    external: true
+    name: cloudbuild
   odoonet:
-
-volumes:
-  odoo-data:
-  odoo-testlogs:
-  odoo-modules:
-  psql:
 
 services:
   odoo:
@@ -19,15 +13,15 @@ services:
     
     restart: unless-stopped
 
-    ports: ["8069:8069", "8072:8072"]
+    ports: ["17069:8069", "17072:8072"]
 
     volumes:
       # Host paths (.ssh configuration)
       - ~/.ssh/:/opt/odoo/.ssh/:cached
       # Named volumes
+      - odoo-modules:${ODOO_EXTRA_ADDONS}:cached
       - odoo-data:${ODOO_DATA_DIR}
       - odoo-testlogs:${ODOO_LOGS_DIR}
-      - odoo-modules:${ODOO_EXTRA_ADDONS}
     depends_on:
       - db
 
@@ -47,3 +41,14 @@ services:
 
     networks:
       odoonet:
+
+volumes:
+  odoo-data:
+  odoo-testlogs:
+  psql:
+  odoo-modules:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./custom  # Define la carpeta de custom
